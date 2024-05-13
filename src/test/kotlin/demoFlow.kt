@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.openqa.selenium.By
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 import java.net.URL
@@ -14,8 +15,27 @@ import java.util.*
 import java.util.stream.Stream
 
 class SampleTest {
-
     private lateinit var driver: AndroidDriver
+    private lateinit var wait: WebDriverWait
+
+    @BeforeEach
+    fun setUp() {
+        configureDriver()
+    }
+
+    private fun configureDriver() {
+        val options = UiAutomator2Options()
+            .setDeviceName("emulator-5554")
+            .setPlatformName("Android")
+            .setAutomationName("UiAutomator2")
+            .setAppPackage("com.fivemobile.thescore")
+            .setAppActivity(".ui.MainActivity")
+            .setNewCommandTimeout(Duration.ofSeconds(120))
+            .setUiautomator2ServerLaunchTimeout(Duration.ofSeconds(120000))
+//            .setNoReset(true)
+        driver = AndroidDriver(URL("http://127.0.0.1:4723/"), options)
+        wait = WebDriverWait(driver, Duration.ofSeconds(30)) /* 30 seconds wait */
+    }
 
     companion object {
         @JvmStatic
@@ -30,99 +50,123 @@ class SampleTest {
         }
     }
 
+    private fun navigateToSignUp() {
+        val continueBtn =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/action_button_text")))
+        continueBtn.click()
+        val nba =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(3)")))
+        nba.click()
+        val nfl =
+            driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(1)"))
+        nfl.click()
+        val mlb =
+            driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(2)"))
+        mlb.click()
+        val nhl =
+            driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(0)"))
+        nhl.click()
+        val continueBtn2 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
+        continueBtn2.click()
+        val allowLocation =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/btn_allow")))
+        allowLocation.click()
+        val whileUsing =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_foreground_only_button")))
+        whileUsing.click()
+        val mlbSub =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"MLB\").instance(1)")))
+        mlbSub.click()
+        val yankees =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(2)")))
+        yankees.click()
+        val nbaSub = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().text(\"NBA\").instance(1)"))
+        nbaSub.click()
+        val raptors =
+            driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(4)"))
+        raptors.click()
+        val celtics =
+            driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(0)"))
+        celtics.click()
+        celtics.click()
+        celtics.click()
+        val continueBtn3 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
+        continueBtn3.click()
+        val scoringUpdates =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/selectedSwitch\").instance(3)")))
+        scoringUpdates.click()
+        val continueBtn4 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
+        continueBtn4.click()
+        val emailSignUp = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
+        emailSignUp.click()
+    }
 
-    @BeforeEach
-    fun setUp() {
-        val options = UiAutomator2Options()
-            .setDeviceName("emulator-5554")
-            .setPlatformName("Android")
-            .setAutomationName("UiAutomator2")
-            .setAppPackage("com.fivemobile.thescore")
-            .setAppActivity(".ui.MainActivity")
-            .setNewCommandTimeout(Duration.ofSeconds(120))
-            .setUiautomator2ServerLaunchTimeout(Duration.ofSeconds(120000))
-//            .setNoReset(true)
+    private fun fillAndSubmitSignUpForm(firstName: String, lastName: String, email: String, password: String) {
+        val fnameField = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/first_name_input_edittext"))
+        fnameField.sendKeys(firstName)
+        val lnameField = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/last_name_input_edittext"))
+        lnameField.sendKeys(lastName)
+        val emailField = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/email_input_edittext"))
+        emailField.sendKeys(email)
+        val pwField = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/password_input_edittext"))
+        pwField.sendKeys(password)
+        if (password == "1") {
+            pwField.sendKeys("password123")
+        }
+        val submit = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
+        submit.click()
+        if (email == "kirolos358@gmail.com") {
+            val randomEmail = generateRandomEmail()
+            val ok = driver.findElement(AppiumBy.id("android:id/button1"))
+            ok.click()
+            emailField.sendKeys(randomEmail)
+            submit.click()
+        }
+    }
 
-        driver = AndroidDriver(URL("http://127.0.0.1:4723/"), options)
+    private fun clickIfVisible(by: By) {
+        val elements = driver.findElements(by)
+        if (elements.isNotEmpty()) {
+            elements[0].click()
+        } else {
+            println("Element not present; skipping interaction.")
+        }
+    }
+
+    private fun searchTeam(team: String, teamName: String) {
+        val allow =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_button")))
+        allow.click()
+        clickIfVisible(AppiumBy.androidUIAutomator("new UiSelector().text(\"Ok, Got It\")") as AppiumBy)
+
+        val searchBar =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/search_bar_text_view")))
+        searchBar.click()
+        clickIfVisible(AppiumBy.id("com.fivemobile.thescore:id/search_bar_text_view") as AppiumBy)
+        val searchField =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/search_src_text")))
+        searchField.sendKeys(team)
+        val searchText =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"$teamName\")")))
+        searchText.click()
+    }
+
+    private fun verifyAndGoBack(teamName: String) {
+        val stats =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"PLAYER STATS\")")))
+        stats.click()
+        val back = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.accessibilityId("Navigate up")))
+        back.click()
+        assert(wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"$teamName\")"))).isDisplayed)
     }
 
     @ParameterizedTest
     @MethodSource("inputData")
     fun demoFlow(firstName: String, lastName: String, email: String, password: String, team: String, teamName: String) {
-        val wait = WebDriverWait(driver, Duration.ofSeconds(30)) // 30 seconds wait
-        val el4 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/action_button_text")))
-        el4.click()
-        val el5 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(3)")))
-        el5.click()
-        val el6 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(1)"))
-        el6.click()
-        val el7 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(2)"))
-        el7.click()
-        val el8 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(0)"))
-        el8.click()
-        val el9 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
-        el9.click()
-        val el10 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/btn_allow")))
-        el10.click()
-        val el11 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_foreground_only_button")))
-        el11.click()
-        val el12 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"MLB\").instance(1)")))
-        el12.click()
-        val el13 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(2)")))
-        el13.click()
-        val el14 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().text(\"NBA\").instance(1)"))
-        el14.click()
-        val el15 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(4)"))
-        el15.click()
-        val el16 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(0)"))
-        el16.click()
-        el16.click()
-        val el17 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/follow_icon\").instance(0)"))
-        el17.click()
-        val el18 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
-        el18.click()
-        val el19 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.fivemobile.thescore:id/selectedSwitch\").instance(3)")))
-        el19.click()
-        val el20 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
-        el20.click()
-        val el21 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
-        el21.click()
-        val el22 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/first_name_input_edittext"))
-        el22.sendKeys(firstName)
-        val el23 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/last_name_input_edittext"))
-        el23.sendKeys(lastName)
-        val el24 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/email_input_edittext"))
-        el24.sendKeys(email)
-        val el25 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/password_input_edittext"))
-        el25.sendKeys(password)
-        if (password == "1"){
-            el25.sendKeys("password123")
-        }
-        val el26 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
-        el26.click()
-        if (email == "kirolos358@gmail.com"){
-            val randomEmail = generateRandomEmail()
-            val el37 = driver.findElement(AppiumBy.id("android:id/button1"))
-            el37.click()
-            el24.sendKeys(randomEmail)
-            el26.click()
-        }
-        val el27 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_button")))
-        el27.click()
-//        var el28 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"Ok, Got It\")")));
-//        el28.click();
-        val el31 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/search_bar_text_view")))
-        el31.click()
-//        var el32 = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/dismiss_modal")));
-//        el32.click();
-        val el33 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/search_src_text"))
-        el33.sendKeys(team)
-        val el34 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().text(\"$teamName\")"))
-        el34.click()
-        val el35 = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().text(\"PLAYER STATS\")"))
-        el35.click()
-        val el36 = driver.findElement(AppiumBy.accessibilityId("Navigate up"))
-        el36.click()
+            navigateToSignUp()
+            fillAndSubmitSignUpForm(firstName, lastName, email, password)
+            searchTeam(team, teamName)
+            verifyAndGoBack(teamName)
     }
 
     @AfterEach
