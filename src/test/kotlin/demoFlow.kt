@@ -18,11 +18,13 @@ class SampleTest {
     private lateinit var driver: AndroidDriver
     private lateinit var wait: WebDriverWait
 
+    // Sets up the Appium driver before each test
     @BeforeEach
     fun setUp() {
         configureDriver()
     }
 
+    // Configures the Appium driver with options for the Android device and app
     private fun configureDriver() {
         val options = UiAutomator2Options()
             .setDeviceName("emulator-5554")
@@ -37,6 +39,7 @@ class SampleTest {
         wait = WebDriverWait(driver, Duration.ofSeconds(30)) /* 30 seconds wait */
     }
 
+    // Provides data for the parameterized tests
     companion object {
         @JvmStatic
         fun inputData(): Stream<Arguments> = Stream.of(
@@ -44,12 +47,14 @@ class SampleTest {
             Arguments.of("Another", "User", generateRandomEmail(), "anotherPassword", "Mavericks", "Dallas Mavericks")
         )
 
+        // Generates a random email for testing purposes
         private fun generateRandomEmail(): String {
             val uuidString = UUID.randomUUID().toString()
             return "test_$uuidString@gmail.com"
         }
     }
 
+    // Navigates to the sign-up page of the app
     private fun navigateToSignUp() {
         val continueBtn =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/action_button_text")))
@@ -68,12 +73,8 @@ class SampleTest {
         nhl.click()
         val continueBtn2 = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/action_button_text"))
         continueBtn2.click()
-        val allowLocation =
-            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/btn_allow")))
-        allowLocation.click()
-        val whileUsing =
-            wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_foreground_only_button")))
-        whileUsing.click()
+        // Permissions handling
+        handlePermissions()
         val mlbSub =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"MLB\").instance(1)")))
         mlbSub.click()
@@ -101,6 +102,15 @@ class SampleTest {
         emailSignUp.click()
     }
 
+    // Handles location permissions
+    private fun handlePermissions() {
+        val allowLocation = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/btn_allow")))
+        allowLocation.click()
+        val whileUsing = wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_foreground_only_button")))
+        whileUsing.click()
+    }
+
+    // Fills and submits the sign-up form
     private fun fillAndSubmitSignUpForm(firstName: String, lastName: String, email: String, password: String) {
         val fnameField = driver.findElement(AppiumBy.id("com.fivemobile.thescore:id/first_name_input_edittext"))
         fnameField.sendKeys(firstName)
@@ -124,6 +134,7 @@ class SampleTest {
         }
     }
 
+    // Clicks on visible elements if they are present, used for optional interactions
     private fun clickIfVisible(by: By) {
         val elements = driver.findElements(by)
         if (elements.isNotEmpty()) {
@@ -133,6 +144,7 @@ class SampleTest {
         }
     }
 
+    // Searches for a team and navigates to its page
     private fun searchTeam(team: String, teamName: String) {
         val allow =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.android.permissioncontroller:id/permission_allow_button")))
@@ -151,6 +163,7 @@ class SampleTest {
         searchText.click()
     }
 
+    // Verifies the presence of player stats and navigates back
     private fun verifyAndGoBack(teamName: String) {
         val stats =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"PLAYER STATS\")")))
@@ -160,6 +173,7 @@ class SampleTest {
         assert(wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator("new UiSelector().text(\"$teamName\")"))).isDisplayed)
     }
 
+    // Executes the test flow with given parameters
     @ParameterizedTest
     @MethodSource("inputData")
     fun demoFlow(firstName: String, lastName: String, email: String, password: String, team: String, teamName: String) {
@@ -169,6 +183,7 @@ class SampleTest {
             verifyAndGoBack(teamName)
     }
 
+    // Cleans up after each test by closing the driver
     @AfterEach
     fun tearDown() {
         driver.quit()
