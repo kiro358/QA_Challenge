@@ -136,11 +136,11 @@ class SampleTest {
 
     // Clicks on visible elements if they are present, used for optional interactions
     private fun clickIfVisible(by: By) {
-        val elements = driver.findElements(by)
-        if (elements.isNotEmpty()) {
-            elements[0].click()
-        } else {
-            println("Element not present; skipping interaction.")
+        try {
+            val element = wait.until(ExpectedConditions.visibilityOfElementLocated(by))
+            element.click()
+        } catch (e: Exception) {
+            println("Element not visible or not present; skipping interaction: ${e.message}")
         }
     }
 
@@ -154,7 +154,8 @@ class SampleTest {
         val searchBar =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/search_bar_text_view")))
         searchBar.click()
-        clickIfVisible(AppiumBy.id("com.fivemobile.thescore:id/search_bar_text_view") as AppiumBy)
+
+        clickIfVisible(AppiumBy.id("com.fivemobile.thescore:id/dismiss_modal") as AppiumBy)
         val searchField =
             wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.id("com.fivemobile.thescore:id/search_src_text")))
         searchField.sendKeys(team)
